@@ -1,7 +1,8 @@
 reg = [
     [/^\d+$/, {type: "number"}],
-    [/^[*\/]$/, {type: "op", precedence: 0}],
-    [/^[+-]$/, {type: "op", precedence: 1}]
+    [/^[*\/]$/, {type: "op", precedence: 1}],
+    [/^[+-]$/, {type: "op", precedence: 2}],
+    [/^[\^]$/, {type: "op", precedence: 0}]
 ]
 // Note that if a certain string matches two RegExps,
 // We will pick the one with a lower index in the array.
@@ -33,6 +34,7 @@ function solve(str) {
 function calculate(lexemes) {
   // This code WILL crash if you give it a malformed expression. So please don't do that :)
   let ops = {
+     "^": (a, b) => Math.pow(a, b),
      "*": (a, b) => a * b,
      "/": (a, b) => a / b,
      "+": (a, b) => a + b,
@@ -43,7 +45,7 @@ function calculate(lexemes) {
   while(lexemes.length !== 1) {
       prio += lexemes.every(n => n.type !== "op" || n.precedence !== prio)
       indx = lexemes.findIndex(n => n.type === "op" && n.precedence === prio)
-      if(indx !== undefined) {
+      if(indx !== undefined && index !== -1) {
           lexemes.splice(indx - 1, 3, {type: "number", value: ops[lexemes[indx].value](+lexemes[indx - 1].value, +lexemes[indx + 1].value)})
       }
   }
